@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUSPLAY · Music Board</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+:root{--bg:#0b0d10;--surface:#14171c;--surface2:#1e2228;--accent:#ff2e6f;--accent2:#7b2ff7;--text:#eef2f6;--text-dim:#9aa4b2;--border:#2c313a}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.logo{font-weight:800;font-size:1.8rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.search-box{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:30px;padding:2px 6px 2px 16px;flex:1;max-width:400px}
+.search-box input{width:100%;padding:10px;background:transparent;border:none;outline:none;color:var(--text)}
+.search-box button{background:var(--accent);border:none;color:#fff;padding:8px 18px;border-radius:30px;cursor:pointer;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.track-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;transition:.2s}
+.track-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+.track-info{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.track-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.track-name{font-weight:700;font-size:.95rem}
+.track-artist{font-size:.78rem;color:var(--text-dim)}
+.track-card iframe{width:100%;height:180px;border:none;border-radius:8px}
+.help{margin-top:30px;padding:20px;background:var(--surface);border:1px dashed var(--border);border-radius:14px;color:var(--text-dim);font-size:.85rem;line-height:1.7}
+.help code{background:var(--surface2);padding:2px 8px;border-radius:6px;color:var(--accent);font-family:monospace}
+</style>
+</head>
+<body>
+<div class="header">
+<h1 class="logo"><i class="fas fa-music"></i> NEXUSPLAY MUSIC</h1>
+<div class="search-box">
+<i class="fas fa-search" style="color:var(--text-dim)"></i>
+<input type="text" id="searchInput" placeholder="Rechercher un son...">
+<button onclick="filterTracks()">Chercher</button>
+</div>
+</div>
+<div class="grid" id="grid"></div>
+<div class="help">
+<h3 style="color:var(--text);margin-bottom:10px">📝 Comment ajouter tes musiques</h3>
+<p>1. Va sur <strong>YouTube</strong>, trouve la musique que tu veux</p>
+<p>2. Clique sur <strong>Partager → Intégrer</strong> et copie le code <code>&lt;iframe&gt;</code></p>
+<p>3. Ou copie juste l'ID vidéo (dans l'URL après <code>v=</code>)</p>
+<p>4. Ajoute une ligne dans le tableau <code>TRACKS</code> en bas du code</p>
+<p>Exemple : <code>{ name: "M.R.H", artist: "Boro 700", id: "dQw4w9WgXcQ" }</code></p>
+</div>
+
+<script>
+// ============================================================
+//  AJOUTE TES MUSIQUES ICI (via YouTube embed)
+// ============================================================
+// Pour chaque musique :
+//   - name   : nom de la musique
+//   - artist : nom de l'artiste
+//   - id     : ID YouTube (ce qui est après "v=" dans l'URL)
+// ============================================================
+const TRACKS = [
+    // Exemples — remplace par tes vraies musiques
+    // { name: "M.R.H", artist: "Boro 700", id: "XXXXXXXXXXX" },
+    // { name: "RCV#1", artist: "Boro 700", id: "XXXXXXXXXXX" },
+    // { name: "La Zone", artist: "Gazo", id: "XXXXXXXXXXX" },
+    // { name: "Seisei", artist: "Gazo", id: "XXXXXXXXXXX" },
+    // { name: "Bande organisée", artist: "SCH", id: "XXXXXXXXXXX" },
+    // { name: "Jolie", artist: "Ninho", id: "XXXXXXXXXXX" },
+
+    // Exemples de démo (à supprimer) :
+    { name: "Never Gonna Give You Up", artist: "Rick Astley", id: "dQw4w9WgXcQ" },
+    { name: "Nyan Cat", artist: "Meme", id: "QH2-TGUlwu4" },
+    { name: "Coffin Dance", artist: "Astronomia", id: "j9V78UbdzWI" },
+];
+
+const grid = document.getElementById('grid');
+
+function render(tracks) {
+    if (tracks.length === 0) {
+        grid.innerHTML = '<div class="help">Aucune musique. Ajoute des entrées dans le tableau TRACKS du code source.</div>';
+        return;
+    }
+    grid.innerHTML = tracks.map(t => `
+        <div class="track-card">
+            <div class="track-info">
+                <div class="track-icon"><i class="fas fa-music"></i></div>
+                <div>
+                    <div class="track-name">${t.name}</div>
+                    <div class="track-artist">${t.artist}</div>
+                </div>
+            </div>
+            <iframe src="https://www.youtube.com/embed/${t.id}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+    `).join('');
+}
+
+function filterTracks() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    render(TRACKS.filter(t =>
+        t.name.toLowerCase().includes(q) || t.artist.toLowerCase().includes(q)
+    ));
+}
+
+document.getElementById('searchInput').addEventListener('input', filterTracks);
+
+render(TRACKS);
+</script>
+</body>
+</html>
